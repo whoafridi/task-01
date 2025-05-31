@@ -1,44 +1,24 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
-import { AppWindow, Ellipsis } from "lucide-react";
+import { AppWindow } from "lucide-react";
 import { TaskContext } from "../context/TaskContext";
 
 import AddCard from "./AddCard";
 import TaskCard from "./TaskCard";
-import ContextMenu from "./ContextMenu";
 import TaskModal from "./TaskModal";
+import ColumnTitle from "./ColumnTitle";
+import { useContextMenu } from "../hooks/useContextMenu";
+import ContextMenuWrapper from "./ContextMenuWrapper";
 
 const TaskBoard = () => {
   const { allTasks, setAllTasks } = useContext(TaskContext);
   const bdata = allTasks.columns[allTasks.active];
 
-  const [contextMenu, setContextMenu] = useState(null);
-  const contextMenuRef = useRef(null);
-
+  const { contextMenu, setContextMenu, contextMenuRef, openContextMenu } =
+    useContextMenu();
   const [selectedTask, setSelectedTask] = useState(null);
 
-  // Close context menu on outside click
-  useEffect(() => {
-    const handleClick = (e) => {
-      if (
-        contextMenuRef.current &&
-        !contextMenuRef.current.contains(e.target)
-      ) {
-        setContextMenu(null);
-      }
-    };
-    window.addEventListener("click", handleClick);
-    return () => window.removeEventListener("click", handleClick);
-  }, []);
-
   const handleContextMenu = (e, item, colIndex, itemIndex) => {
-    e.preventDefault();
-    setContextMenu({
-      x: e.pageX,
-      y: e.pageY,
-      item,
-      colIndex,
-      itemIndex,
-    });
+    openContextMenu(e, { x: e.pageX, y: e.pageY, item, colIndex, itemIndex });
   };
 
   const moveItemToColumn = (targetColIndex) => {
@@ -68,12 +48,7 @@ const TaskBoard = () => {
             className="w-full h-fit rounded-lg p-2 bg-gray-100"
           >
             <div className="list-body">
-              <div className="flex justify-between p-1">
-                <span>{col.title}</span>
-                <button className="hover:bg-gray-200 p-1 rounded-sm">
-                  <Ellipsis size={16} />
-                </button>
-              </div>
+              <ColumnTitle title={col.title} />
 
               <div className="py-1 space-y-1 max-h-[300px] overflow-auto pr-1">
                 {col.items.map((item, itemIndex) => (
@@ -117,17 +92,14 @@ const TaskBoard = () => {
           />
         )}
         {/* Context Menu */}
-        {contextMenu && (
-          <ContextMenu
-            position={{ x: contextMenu.x, y: contextMenu.y }}
-            currentColumnIndex={contextMenu.colIndex}
-            columns={bdata.list}
-            onSelect={(targetIndex) => {
-              moveItemToColumn(targetIndex);
-            }}
-            onClose={() => setContextMenu(null)}
-          />
-        )}
+        <ContextMenuWrapper
+          contextMenu={contextMenu}
+          setContextMenu={setContextMenu}
+          contextMenuRef={contextMenuRef}
+          currentColumnIndex={contextMenu?.colIndex}
+          columns={bdata.list}
+          onMoveItem={moveItemToColumn}
+        />
       </div>
     </div>
   );

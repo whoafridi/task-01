@@ -1,8 +1,16 @@
-import { Pencil, Clock, Paperclip, AlignLeft } from "lucide-react";
+import {
+  Pencil,
+  Clock,
+  Paperclip,
+  AlignLeft,
+  AlertTriangle,
+} from "lucide-react";
 import { formatDate } from "../utils/dateUtils";
 import { STATUS_COLORS } from "../config/color";
+import { isOverdue } from "../utils/overDue";
 
 const TaskCard = ({ item, onEdit, onContextMenu, onClick }) => {
+  const overdue = isOverdue(item.dueDate, item.status);
   return (
     <div
       onClick={onClick}
@@ -33,6 +41,12 @@ const TaskCard = ({ item, onEdit, onContextMenu, onClick }) => {
         <div className="flex items-center gap-1">
           <Clock size={12} className="text-gray-500" />
           <span className="text-gray-500">{formatDate(item.dueDate)}</span>
+          {overdue && (
+            <span className="flex items-center gap-0.5 text-red-600 font-medium ml-1">
+              <AlertTriangle size={12} className="text-red-600" />
+              Overdue
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-1">
           <AlignLeft size={12} className="text-gray-500" />

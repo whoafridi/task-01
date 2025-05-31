@@ -25,7 +25,7 @@ export const taskInitialData = {
               id: "cdrFv",
               title: "Project Description 2",
               description: "This is a description",
-              dueDate: "2025-06-02T15:00",
+              dueDate: "2025-05-30T15:00",
               status: "Ongoing",
             },
           ],
